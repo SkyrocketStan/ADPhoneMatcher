@@ -1,62 +1,137 @@
-# Phone Matcher
+# ADPhoneMatcher
 
-Скрипт для сопоставления номеров телефонов из выгрузок с данными Active Directory (AD).
+ADPhoneMatcher — это Python-приложение для сопоставления телефонных номеров из CSV-выгрузки Active Directory (AD) с данными из других источников (`.csv` или `.txt`). Проект работает на чистом Python без сторонних библиотек, обрабатывает входные файлы, нормализует номера, создаёт выходные CSV с результатами, архивирует обработанные файлы и ведёт логирование.
+
+## Основные возможности
+
+- **Обработка AD-выгрузки**: Чтение CSV с настраиваемыми полями (`name`, `phone`, `email`, `active`) через `config.py`.
+- **Поиск выгрузок**: Обработка `.csv` и `.txt` в папке `input/`, исключая `output/` и `archive/`.
+- **Нормализация номеров**: Удаление символов `+-() " "` (настраивается в `config.py`).
+- **Вывод**: CSV в `output/` с настраиваемыми полями (`phone`, `name`, `email`, `active`).
+- **Логирование**:
+  - Логи в `logs/log_YYYY-MM-DD_HH-MM-SS.log` (до 5 файлов, настраивается в `config.py`).
+  - Консоль: относительные пути (`./input/...`), `INFO` без `-v`, `DEBUG` с `-v`.
+  - Лог: абсолютные пути (`[BASE_DIR]/...`), всегда `DEBUG`.
+- **Архивирование**: Перемещение обработанных файлов в `archive/` с уникальными именами.
+- **Права**: Выходные файлы и логи с правами `0o666`.
+- **Производительность**: Обработка `[N]` номеров за 0 секунд.
+
+## Требования
+
+- Python 3.7+
+- ОС: Linux (тестировалось в Astra Linux и Linux Mint)
 
 ## Установка
 
-1. Склонируйте репозиторий:
+1. Клонируйте репозиторий:
+
    ```bash
-   git clone <repository_url>
+   git clone https://github.com/SkyrocketStan/ADPhoneMatcher.git
+   cd ADPhoneMatcher
    ```
-2. Перейдите в директорию проекта:
+
+2. Создайте необходимые папки:
+
    ```bash
-   cd phone_matcher
-   ```
-3. (Опционально) Установите зависимости, если появятся:
-   ```bash
-   pip3 install -r requirements.txt
+   mkdir -p input output archive logs
    ```
 
 ## Использование
 
-1. Подготовьте файл AD (`ad_data.csv`) и поместите его в корень проекта.
-2. Запустите скрипт с помощью `python3`:
-   ```bash
-   python3 phone_matcher/main.py ad_data.csv
+1. Подготовьте входной файл (`input.csv`) с колонками, указанными в `config.py`:
+   - `name` (имя пользователя)
+   - `phone` (номера, разделённые `;` или `#`)
+   - `email` (электронная почта)
+   - `active` (True/False)
+
+   Пример:
+
    ```
-3. Для подробного вывода используйте флаг `-v`:
-   ```bash
-   python3 phone_matcher/main.py -v ad_data.csv
-   ```
-4. Укажите альтернативную папку выгрузок:
-   ```bash
-   python3 phone_matcher/main.py --uploads-dir imports/ ad_data.csv
-   ```
-5. Для запуска всех тестов с генерацией больших данных (80,000 записей AD, 5,000 выгрузок):
-   ```bash
-   python3 test_phone_matcher.py
+   name,phone,email,active
+   [NAME],[PHONE];[PHONE2],[EMAIL],True
    ```
 
-**Заметка**: Используйте `python3`, так как на некоторых системах (например, Ubuntu, Mint) команда `python` может быть недоступна или указывать на Python 2. Если вы видите ошибку `Command 'python' not found`, убедитесь, что установлен пакет `python3` (`sudo apt install python3`).
+2. Поместите выгрузки (`.csv` или `.txt`) в `input/`.
 
-## Конфигурация
+3. Запустите скрипт:
 
-Настройки находятся в `phone_matcher/config.py`. Основные параметры:
-- `PHONE_UPLOADS_DIR`: Папка с файлами выгрузок (`phones/`).
-- `RESULTS_DIR`: Папка для результатов (`results/`).
-- `PHONE_NUMBER_HEADER_NAMES`: Возможные заголовки столбцов с номерами (`["f_extension", "number", "phone"]`).
-- `LOG_FILE`: Файл лога (`phone_matcher.log`).
+   ```bash
+   python3 -m phone_matcher.main input.csv
+   ```
 
-## Тестирование
+   С флагом `-v` для подробного вывода:
 
-Для проверки скрипта на больших данных:
-```bash
-python3 test_phone_matcher.py
+   ```bash
+   python3 -m phone_matcher.main input.csv -v
+   ```
+
+4. Результаты:
+   - CSV в `output/output_YYYY-MM-DD_HH-MM-SS.csv`
+   - Логи в `logs/log_YYYY-MM-DD_HH-MM-SS.log`
+   - Обработанные файлы в `archive/`
+
+## Пример вывода
+
+**Консоль** (с `-v`):
+
+```
+[2025-04-20 12:00:00] === Начало работы ===
+[2025-04-20 12:00:00] Обработка файла: input.csv
+[2025-04-20 12:00:00] Найдено уникальных номеров: [N]
+[2025-04-20 12:00:00] Некорректный номер: [INVALID_REASON]
+...
 ```
 
-Это создаст временные файлы:
-- AD: ~80,000 записей.
-- Выгрузки: ~5,000 номеров (CSV и TXT).
-- Проверит итоговый CSV и лог.
+**Лог** (`logs/log_2025-04-20_12-00-00.log`):
 
-Модульные тесты находятся в `tests/` и проверяют отдельные компоненты.
+```
+[2025-04-20 12:00:00] === Начало работы ===
+[2025-04-20 12:00:00] Обработка файла: [BASE_DIR]/input.csv
+[2025-04-20 12:00:00] Некорректный номер: [INVALID_REASON]
+...
+```
+
+**CSV** (`output/output_2025-04-20_12-00-00.csv`):
+
+```
+phone,name,email,active
+[PHONE],[NAME],[EMAIL],True
+...
+```
+
+## Структура проекта
+
+```
+ADPhoneMatcher/
+├── logs/                    # Логи (log_YYYY-MM-DD_HH-MM-SS.log)
+├── phone_matcher/           # Пакет Python
+│   ├── __init__.py         # Инициализация пакета
+│   ├── main.py             # Точка входа
+│   ├── utils.py            # Утилиты (логирование, пути)
+│   ├── config.py           # Конфигурация
+│   ├── parse_ad.py         # Парсинг входного файла
+│   ├── normalize.py        # Нормализация номеров
+│   ├── parse_phone.py      # Парсинг номеров
+│   ├── output.py           # Формирование CSV
+│   ├── match.py            # Сопоставление номеров
+├── input/                   # Входные выгрузки
+├── output/                  # Выходные CSV
+├── archive/                 # Архив обработанных файлов
+├── docs/                    # Документация
+│   ├── Technical_Specification.md  # Техническое задание
+├── .gitignore               # Игнорируемые файлы
+├── README.md                # Основная документация
+├── LICENSE                  # Лицензия (MIT)
+├── CHANGELOG.md             # История изменений
+├── CONTRIBUTING.md          # Инструкции для контрибьюторов
+├── run.sh                   # Скрипт запуска
+```
+
+## Лицензия
+
+MIT License (см. `LICENSE`).
+
+## Контакты
+
+- Разработчик: Stanislav Rakitov
+- Репозиторий: <https://github.com/SkyrocketStan/ADPhoneMatcher>

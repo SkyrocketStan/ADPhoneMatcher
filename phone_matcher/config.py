@@ -33,7 +33,7 @@ EXCLUDE_DIRS = [RESULTS_DIR, ARCHIVE_DIR]  # Исключаемые папки �
 LOG_FILE = os.path.join(BASE_DIR, 'matcher.log')
 LOG_FORMAT = '[%(asctime)s] %(message)s'
 LOG_DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
-MAX_LOGS = 10   # Максимальное количество логов в папке logs
+MAX_LOGS = 5   # Максимальное количество логов в папке logs
 
 # Выходной файл
 OUTPUT_FILE_PREFIX = 'output'

@@ -9,16 +9,22 @@ dist/
 *.egg-info/
 
 *.log
-
 *.bak
 *.swp
 *~
-.DS_Store
 
 results/
 archive/
 phones/
+logs/
+output/
+input/
+
 *.csv
 *.txt
 
 !docs/*.md
+
+.idea/
+.vscode/
+.DS_Store
