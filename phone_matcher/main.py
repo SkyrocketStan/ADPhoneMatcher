@@ -52,13 +52,13 @@ def main():
         log_error("Не найдено номеров в выгрузках")
         return
 
-    log_info(f"Общее количество строк в файлах с номерами: {total_phone_lines}")
+    log_info(f"Общее количество номеров в файлах выгрузки: {total_phone_lines}")
     matches = match_phones(phones, ad_data)
 
     matched_count = sum(1 for m in matches if m[1] or m[2] or m[3])
     unmatched_count = len(matches) - matched_count
-    log_info(f"Найдено сопоставлений: {matched_count}")
-    log_info(f"Не найдено: {unmatched_count}")
+    log_info(f"Найдено совпадений с номерами AD: {matched_count}")
+    log_info(f"Номеров без совпадений в AD: {unmatched_count}")
 
     timestamp = datetime.now().strftime(config.DATE_FORMAT)
     output_file = os.path.join(config.RESULTS_DIR, f"{timestamp}_{config.OUTPUT_FILE_PREFIX}.csv")
@@ -70,7 +70,7 @@ def main():
         if extra_rows > 0:
             log_msg += f" (включая {extra_rows} дополнительные строки из-за дубликатов в AD)"
         log_info(log_msg)
-        log_info(f"Результат сохранён в {output_file}, обработано {count} номеров")
+        log_info(f"Результат сохранён в {output_file}")
     except Exception as e:
         log_error(f"Ошибка записи результата: {e}")
 
