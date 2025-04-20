@@ -17,21 +17,42 @@ class RelativePathFormatter(logging.Formatter):
         record.msg = message
         return super().format(record)
 
+def manage_log_files(logs_dir: str, log_file: str) -> None:
+    """Удаляет самые старые лог-файлы, чтобы осталось не более config.MAX_LOGS."""
+    os.makedirs(logs_dir, exist_ok=True)
+    log_files = sorted(glob.glob(os.path.join(logs_dir, "matcher_*.log")), key=os.path.getmtime)
+    if log_file not in log_files:
+        log_files.append(log_file)  # Учитываем новый лог, если он ещё не в списке
+    if len(log_files) >= config.MAX_LOGS:
+        for old_log in log_files[:-config.MAX_LOGS]:  # Оставляем последние MAX_LOGS файлов
+            try:
+                if old_log != log_file:  # Не удаляем только что созданный лог
+                    os.remove(old_log)
+            except Exception as e:
+                logging.getLogger().error(f"Ошибка удаления старого лога {old_log}: {e}")
+
 def setup_logger(verbose: bool, log_file: str) -> None:
     """Настраивает логгер для вывода в консоль и файл."""
+    logs_dir = os.path.join(config.BASE_DIR, "logs")
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    log_file = os.path.join(logs_dir, f"matcher_{timestamp}.log")
+    
     logger = logging.getLogger()
     logger.setLevel(logging.DEBUG)
     logger.handlers = []
 
-    base_dir = os.path.dirname(log_file)
-    os.makedirs(base_dir, exist_ok=True)
-
+    # Настройка файлового обработчика
+    os.makedirs(logs_dir, exist_ok=True)
     file_handler = logging.FileHandler(log_file)
     file_handler.setLevel(logging.DEBUG)
     file_formatter = logging.Formatter("[%(asctime)s] %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
     file_handler.setFormatter(file_formatter)
     logger.addHandler(file_handler)
 
+    # Управление количеством логов после создания нового
+    manage_log_files(logs_dir, log_file)
+
+    # Настройка консольного обработчика
     console_handler = logging.StreamHandler()
     console_handler.setLevel(logging.DEBUG if verbose else logging.INFO)
     console_formatter = RelativePathFormatter("[%(asctime)s] %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
