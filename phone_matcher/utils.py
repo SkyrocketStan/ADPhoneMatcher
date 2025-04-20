@@ -20,14 +20,14 @@ class RelativePathFormatter(logging.Formatter):
 def setup_logger(verbose: bool, log_file: str) -> None:
     """Настраивает логгер для вывода в консоль и файл."""
     logger = logging.getLogger()
-    logger.setLevel(logging.DEBUG if verbose else logging.INFO)
+    logger.setLevel(logging.DEBUG)
     logger.handlers = []
 
     base_dir = os.path.dirname(log_file)
     os.makedirs(base_dir, exist_ok=True)
 
     file_handler = logging.FileHandler(log_file)
-    file_handler.setLevel(logging.DEBUG if verbose else logging.INFO)
+    file_handler.setLevel(logging.DEBUG)
     file_formatter = logging.Formatter("[%(asctime)s] %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
     file_handler.setFormatter(file_formatter)
     logger.addHandler(file_handler)
