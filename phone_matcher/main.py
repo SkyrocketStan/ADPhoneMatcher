@@ -1,6 +1,7 @@
 import argparse
 import os
 import time
+import sys
 from datetime import datetime
 from . import config
 from .utils import setup_logger, log_info, log_error, find_phone_files, move_file_to_archive
@@ -20,6 +21,14 @@ def main():
 
     setup_logger(args.verbose, config.LOG_FILE)
     log_info("=== Начало работы ===")
+
+    # Проверка существования входного файла
+    ad_file_path = os.path.abspath(args.ad_file)
+    if not os.path.exists(ad_file_path):
+        log_error(f"Ошибка: входной файл {args.ad_file} не найден")
+        log_info("=== Работа завершена с ошибкой ===")
+        sys.exit(1)
+
     log_info(f"Обработка AD файла: {args.ad_file}")
 
     phone_files = find_phone_files(config.EXCLUDE_DIRS, args.uploads_dir)
