@@ -29,3 +29,9 @@ input/
 .vscode/
 
 .DS_Store
+*.zip
+results/
+uploads/
+__pycache__/
+*.pyc
+.github/
