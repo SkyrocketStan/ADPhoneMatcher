@@ -1,0 +1,25 @@
+[MASTER]
+ignore=results,uploads,archive,logs,input,output,__pycache__
+
+[MESSAGES CONTROL]
+disable=
+    missing-module-docstring,
+    missing-class-docstring,
+    missing-function-docstring,
+    too-few-public-methods,
+    too-many-arguments,
+    too-many-locals,
+    too-many-branches,
+    line-too-long
+
+[FORMAT]
+max-line-length=88
+
+[BASIC]
+good-names=i,j,k,n,ex,Run,_
+variable-rgx=[a-z_][a-z0-9_]{1,30}$
+
+[DESIGN]
+max-args=7
+max-locals=15
+max-branches=12
