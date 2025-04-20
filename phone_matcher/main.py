@@ -30,7 +30,7 @@ def main():
 
     try:
         ad_data = parse_ad_file(args.ad_file, args.verbose)
-        log_info(f"Найдено уникальных номеров: {len(ad_data)}")
+        log_info(f"Найдено уникальных номеров в AD: {len(ad_data)}")
     except Exception as e:
         log_error(f"Ошибка обработки AD: {e}")
         return
@@ -80,4 +80,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
