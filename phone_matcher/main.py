@@ -64,7 +64,12 @@ def main():
     output_file = os.path.join(config.RESULTS_DIR, f"{timestamp}_{config.OUTPUT_FILE_PREFIX}.csv")
     try:
         count = write_output_file(matches, output_file)
-        log_info(f"Количество строк в итоговом файле: {count}")
+        unique_phones = len(set(phone for phone, _ in phones))
+        extra_rows = count - unique_phones
+        log_msg = f"Количество строк в итоговом файле: {count}"
+        if extra_rows > 0:
+            log_msg += f" (включая {extra_rows} дополнительные строки из-за дубликатов в AD)"
+        log_info(log_msg)
         log_info(f"Результат сохранён в {output_file}, обработано {count} номеров")
     except Exception as e:
         log_error(f"Ошибка записи результата: {e}")
@@ -75,3 +80,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    
