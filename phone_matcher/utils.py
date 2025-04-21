@@ -5,6 +5,7 @@ from datetime import datetime
 from typing import List
 from . import config
 
+
 class RelativePathFormatter(logging.Formatter):
     """Форматирует сообщения, заменяя абсолютные пути на относительные для консоли."""
     def format(self, record):
@@ -17,6 +18,7 @@ class RelativePathFormatter(logging.Formatter):
         record.msg = message
         return super().format(record)
 
+
 def manage_log_files(logs_dir: str, log_file: str) -> None:
     """Удаляет самые старые лог-файлы, чтобы осталось не более config.MAX_LOGS."""
     os.makedirs(logs_dir, exist_ok=True)
@@ -28,15 +30,16 @@ def manage_log_files(logs_dir: str, log_file: str) -> None:
             try:
                 if old_log != log_file:  # Не удаляем только что созданный лог
                     os.remove(old_log)
-            except Exception as e:
-                logging.getLogger().error(f"Ошибка удаления старого лога {old_log}: {e}")
+            except (OSError, PermissionError) as exc:
+                logging.getLogger().error("Ошибка удаления старого лога %s: %s", old_log, exc)
 
-def setup_logger(verbose: bool, log_file: str) -> None:
+
+def setup_logger(verbose: bool) -> None:
     """Настраивает логгер для вывода в консоль и файл."""
     logs_dir = os.path.join(config.BASE_DIR, "logs")
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     log_file = os.path.join(logs_dir, f"matcher_{timestamp}.log")
-    
+
     logger = logging.getLogger()
     logger.setLevel(logging.DEBUG)
     logger.handlers = []
@@ -45,6 +48,7 @@ def setup_logger(verbose: bool, log_file: str) -> None:
     os.makedirs(logs_dir, exist_ok=True)
     file_handler = logging.FileHandler(log_file)
     file_handler.setLevel(logging.DEBUG)
+    # noinspection SpellCheckingInspection
     file_formatter = logging.Formatter("[%(asctime)s] %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
     file_handler.setFormatter(file_formatter)
     logger.addHandler(file_handler)
@@ -55,25 +59,31 @@ def setup_logger(verbose: bool, log_file: str) -> None:
     # Настройка консольного обработчика
     console_handler = logging.StreamHandler()
     console_handler.setLevel(logging.DEBUG if verbose else logging.INFO)
+    # noinspection SpellCheckingInspection
     console_formatter = RelativePathFormatter("[%(asctime)s] %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
     console_handler.setFormatter(console_formatter)
     logger.addHandler(console_handler)
+
 
 def ensure_dir(directory: str) -> None:
     """Создаёт директорию, если она не существует."""
     os.makedirs(directory, exist_ok=True)
 
+
 def log_info(message: str) -> None:
     """Логирует сообщение уровня INFO."""
     logging.getLogger().info(message)
+
 
 def log_error(message: str) -> None:
     """Логирует сообщение уровня ERROR."""
     logging.getLogger().error(message)
 
+
 def log_verbose(message: str) -> None:
     """Логирует сообщение уровня DEBUG."""
     logging.getLogger().debug(message)
+
 
 def find_phone_files(exclude_dirs: List[str], uploads_dir: str) -> List[str]:
     """Находит файлы .csv и .txt в uploads_dir, исключая exclude_dirs."""
@@ -84,6 +94,7 @@ def find_phone_files(exclude_dirs: List[str], uploads_dir: str) -> List[str]:
             if not any(os.path.abspath(file).startswith(os.path.abspath(d)) for d in exclude_dirs):
                 phone_files.append(os.path.abspath(file))
     return phone_files
+
 
 def move_file_to_archive(file_path: str, archive_dir: str) -> None:
     """Перемещает файл в архив с уникальным именем."""
@@ -98,5 +109,5 @@ def move_file_to_archive(file_path: str, archive_dir: str) -> None:
     try:
         os.rename(file_path, dest_path)
         log_info(f"Файл перемещён в архив: {file_path}")
-    except Exception as e:
-        log_error(f"Ошибка перемещения файла {file_path} в архив: {e}")
+    except (OSError, PermissionError) as exc:
+        log_error(f"Ошибка перемещения файла {file_path} в архив: {exc}")

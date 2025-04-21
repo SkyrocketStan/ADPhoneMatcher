@@ -21,22 +21,22 @@ def write_output_file(
     """
     ensure_dir(os.path.dirname(output_file))
     temp_file = output_file + ".tmp"
-    
+
     try:
-        with open(temp_file, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.writer(f, delimiter=config.OUTPUT_DELIMITER, quoting=csv.QUOTE_MINIMAL)
+        with open(temp_file, 'w', newline='', encoding='utf-8') as file_:
+            writer = csv.writer(file_, delimiter=config.OUTPUT_DELIMITER, quoting=csv.QUOTE_MINIMAL)
             writer.writerow(config.OUTPUT_FIELDS)
             writer.writerows(matches)
-        
+
         sorted_matches = sorted(matches, key=lambda x: x[0])
-        with open(output_file, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.writer(f, delimiter=config.OUTPUT_DELIMITER, quoting=csv.QUOTE_MINIMAL)
+        with open(output_file, 'w', newline='', encoding='utf-8') as file_:
+            writer = csv.writer(file_, delimiter=config.OUTPUT_DELIMITER, quoting=csv.QUOTE_MINIMAL)
             writer.writerow(config.OUTPUT_FIELDS)
             writer.writerows(sorted_matches)
-        
+
         os.remove(temp_file)
         os.chmod(output_file, config.FILE_PERMISSIONS)
         return len(matches)
-    except Exception as e:
-        log_error(f"Ошибка записи {output_file}: {e}")
+    except Exception as exc:
+        log_error(f"Ошибка записи {output_file}: {exc}")
         raise

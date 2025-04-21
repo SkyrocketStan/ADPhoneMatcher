@@ -1,5 +1,7 @@
 from typing import Dict, List, Tuple
-from .utils import log_info, log_verbose
+
+from .utils import log_verbose
+
 
 def match_phones(
     phones: List[Tuple[str, str]],
