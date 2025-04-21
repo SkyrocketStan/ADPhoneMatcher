@@ -119,6 +119,7 @@ ADPhoneMatcher/
 ├── archive/                 # Архив обработанных файлов
 ├── docs/                    # Документация
 │   ├── Technical_Specification.md  # Техническое задание
+├── scripts/                 # Утилиты для развертывания
 ├── .gitignore               # Игнорируемые файлы
 ├── README.md                # Основная документация
 ├── LICENSE                  # Лицензия (MIT)
@@ -126,6 +127,20 @@ ADPhoneMatcher/
 ├── CONTRIBUTING.md          # Инструкции для контрибьюторов
 ├── run.sh                   # Скрипт запуска
 ```
+
+## Утилиты для развертывания
+
+В директории `scripts/` находятся:
+- `pack_project.py`: Упаковывает файлы `phone_matcher/*.py` и `run.sh` в `project_files.txt`.
+- `deploy.py`: Разворачивает проект, создавая `phone_matcher/` и `uploads/`.
+- `run.sh`: Запускает `main.py` с файлом `ad_input.csv`.
+
+Использование:
+1. Упаковка: `python3 scripts/pack_project.py`
+2. Копия `deploy.py`: `cp scripts/deploy.py deploy.txt`
+3. Отправка: Перешлите `project_files.txt` и `deploy.txt`.
+4. Развёртывание: `python3 deploy.py project_files.txt`
+
 
 ## Лицензия
 
