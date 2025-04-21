@@ -10,7 +10,6 @@ from .parse_phone import parse_phone_file
 from .match import match_phones
 from .output import write_output_file
 
-
 def parse_arguments():
     """Парсит аргументы командной строки.
 
@@ -22,7 +21,6 @@ def parse_arguments():
     parser.add_argument("-v", "--verbose", action="store_true", help="Подробный вывод")
     parser.add_argument("--uploads-dir", default=config.UPLOADS_DIR, help="Папка с файлами выгрузок")
     return parser.parse_args()
-
 
 def process_ad_file(ad_file: str) -> dict:
     """Обрабатывает AD-файл.
@@ -47,7 +45,6 @@ def process_ad_file(ad_file: str) -> dict:
     log_info(f"Найдено уникальных номеров в AD: {len(ad_data)}")
     return ad_data
 
-
 def process_phone_files(uploads_dir: str) -> list:
     """Обрабатывает файлы выгрузки.
 
@@ -60,8 +57,9 @@ def process_phone_files(uploads_dir: str) -> list:
     phone_files = find_phone_files(config.EXCLUDE_DIRS, uploads_dir)
     log_info(f"Найдено файлов с номерами: {len(phone_files)}")
     if not phone_files:
-        log_error(f"Файлы выгрузки не найдены в {uploads_dir}")
-        return []
+        log_error(f"Файлы выгрузки не найдены в {uploads_dir}. Завершение работы.")
+        log_info("=== Работа завершена ===")
+        sys.exit(1)
 
     phones = []
     total_phone_lines = 0
@@ -78,7 +76,6 @@ def process_phone_files(uploads_dir: str) -> list:
 
     log_info(f"Общее количество номеров в файлах выгрузки: {total_phone_lines}")
     return phones
-
 
 def write_results(phones: list, ad_data: dict, timestamp: str):
     """Сопоставляет номера, записывает результаты и логирует статистику.
@@ -111,7 +108,6 @@ def write_results(phones: list, ad_data: dict, timestamp: str):
     except (IOError, PermissionError) as exc:
         log_error(f"Ошибка записи результата: {exc}")
 
-
 def main():
     """Основная функция скрипта."""
     start_time = time.time()
@@ -120,18 +116,18 @@ def main():
     log_info("=== Начало работы ===")
 
     try:
-        ad_data = process_ad_file(args.ad_file)
         phones = process_phone_files(args.uploads_dir)
+        ad_data = process_ad_file(args.ad_file)
         timestamp = datetime.now().strftime(config.DATE_FORMAT)
         write_results(phones, ad_data, timestamp)
     except (IOError, OSError) as exc:
-        log_error(f"Ошибка обработки AD: {exc}")
-        return
+        log_error(f"Ошибка обработки: {exc}")
+        log_info("=== Работа завершена с ошибкой ===")
+        sys.exit(1)
 
     execution_time = int(time.time() - start_time)
     log_info(f"Общее время выполнения: {execution_time} секунд")
     log_info("=== Работа завершена ===")
-
 
 if __name__ == "__main__":
     main()
