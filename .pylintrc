@@ -1,5 +1,6 @@
 [MASTER]
-ignore=results,uploads,archive,logs,input,output,__pycache__
+ignore=results,uploads,archive,logs,input,output,__pycache__,scripts,docs
+ignore-patterns=.*\.pyc
 
 [MESSAGES CONTROL]
 disable=
