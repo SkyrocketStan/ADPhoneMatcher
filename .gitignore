@@ -31,4 +31,6 @@ input/
 .DS_Store
 *.zip
 uploads/
-.github/
+.venv/
+.pytest_cache/
+
