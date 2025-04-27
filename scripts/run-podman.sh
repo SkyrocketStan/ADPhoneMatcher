@@ -35,4 +35,4 @@ podman run --rm \
     -v "${BASE_DIR}:/app:Z" \
     -w /app \
     python:3.7-slim \
-    bash -c "python3 -m phone_matcher.main /app/input/${AD_FILE} -v"
+    bash -c "python3 -m phone_matcher.main /app/input/${AD_FILE}"

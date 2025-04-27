@@ -1,6 +1,7 @@
 import logging
 import os
 import glob
+import shutil
 from datetime import datetime
 from typing import List
 from . import config
@@ -107,7 +108,7 @@ def move_file_to_archive(file_path: str, archive_dir: str) -> None:
         dest_path = os.path.join(archive_dir, f"{name}_{counter}{ext}")
         counter += 1
     try:
-        os.rename(file_path, dest_path)
+        shutil.move(file_path, dest_path)
         log_info(f"Файл перемещён в архив: {file_path}")
     except (OSError, PermissionError) as exc:
         log_error(f"Ошибка перемещения файла {file_path} в архив: {exc}")
