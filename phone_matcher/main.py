@@ -4,7 +4,7 @@ import time
 import sys
 from datetime import datetime
 from . import config
-from .utils import setup_logger, log_info, log_error, find_phone_files, move_file_to_archive
+from .utils import setup_anomaly_logger, setup_logger, log_info, log_error, find_phone_files, move_file_to_archive
 from .parse_ad import parse_ad_file
 from .parse_phone import parse_phone_file
 from .match import match_phones
@@ -41,8 +41,10 @@ def process_ad_file(ad_file: str) -> dict:
         sys.exit(1)
 
     log_info(f"Обработка AD файла: {ad_file}")
-    ad_data = parse_ad_file(ad_file)
+    ad_data, anomaly_count = parse_ad_file(ad_file)
     log_info(f"Найдено уникальных номеров в AD: {len(ad_data)}")
+    if anomaly_count > 0:
+        log_info(f"Обнаружено аномалий в номерах AD: {anomaly_count}")
     return ad_data
 
 def process_phone_files(uploads_dir: str) -> list:
@@ -113,6 +115,7 @@ def main():
     start_time = time.time()
     args = parse_arguments()
     setup_logger(args.verbose)
+    setup_anomaly_logger()
     log_info("=== Начало работы ===")
 
     try:

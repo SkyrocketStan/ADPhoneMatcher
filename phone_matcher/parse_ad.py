@@ -3,10 +3,9 @@ from typing import Dict, List, Tuple
 
 from . import config
 from .normalize import normalize_phone
-from .utils import log_error, log_verbose
+from .utils import log_error, log_verbose, log_anomaly
 
 
-# noinspection SpellCheckingInspection
 def validate_header(header: List[str], ad_file: str) -> List[str]:
     """Проверяет и нормализует заголовок CSV.
 
@@ -40,27 +39,30 @@ def validate_header(header: List[str], ad_file: str) -> List[str]:
     return header
 
 
-def process_row(row: List[str], header: List[str]) -> List[Tuple[str, str, str, str]]:
-    """Обрабатывает строку CSV и возвращает данные.
+def process_row(row: List[str], header: List[str]) -> Tuple[List[Tuple[str, str, str, str]], int]:
+    """Обрабатывает строку CSV и возвращает данные и количество аномалий.
 
     Args:
         row: Строка CSV.
         header: Заголовок CSV.
 
     Returns:
-        Список кортежей (номер, ФИО, email, enabled).
+        Кортеж: (список кортежей (номер, ФИО, email, enabled), количество аномалий).
     """
+    anomaly_count = 0
     if len(row) < len(config.AD_FIELDS):
         log_verbose(f"Пропущена строка в AD: {row}")
-        return []
+        return [], anomaly_count
 
     display_name = row[header.index(config.AD_FIELDS['display_name'])]
     phones = row[header.index(config.AD_FIELDS['phone'])]
     email = row[header.index(config.AD_FIELDS['email'])]
     enabled = row[header.index(config.AD_FIELDS['enabled'])]
 
+    row_str = f'"{display_name}";"{phones}";"{email}";"{enabled}"'
+
     if not phones:
-        return []
+        return [], anomaly_count
 
     phone_list = [phones]
     for delimiter in config.AD_PHONE_DELIMITERS:
@@ -74,28 +76,30 @@ def process_row(row: List[str], header: List[str]) -> List[Tuple[str, str, str, 
             log_verbose(f"Пустой номер в AD: {row}")
             continue
         norm_phone = normalize_phone(phone)
-        if not norm_phone:
-            log_verbose(f"Некорректный номер в AD: {phone}")
+        if not norm_phone or len(norm_phone) < config.VALID_PHONE_NUMBER_LENGTH:
+            log_anomaly(row_str)
+            anomaly_count += 1
             continue
         result.append((norm_phone, display_name, email, enabled))
 
-    return result
+    return result, anomaly_count
 
 
-def parse_ad_file(ad_file: str) -> Dict[str, List[Tuple[str, str, str]]]:
-    """Читает файл AD и создаёт словарь номеров.
+def parse_ad_file(ad_file: str) -> Tuple[Dict[str, List[Tuple[str, str, str]]], int]:
+    """Читает файл AD и создаёт словарь номеров с количеством аномалий.
 
     Args:
         ad_file: Путь к файлу AD.
 
     Returns:
-        Словарь {номер: [(ФИО, email, Enabled), ...]}.
+        Кортеж: (словарь {номер: [(ФИО, email, Enabled), ...]}, общее количество аномалий).
 
     Raises:
         FileNotFoundError: Если файл AD не найден.
         ValueError: Если формат AD некорректен.
     """
     ad_data = {}
+    total_anomaly_count = 0
 
     for encoding in config.ENCODINGS:
         try:
@@ -104,12 +108,14 @@ def parse_ad_file(ad_file: str) -> Dict[str, List[Tuple[str, str, str]]]:
                 header = validate_header(next(reader, None), ad_file)
 
                 for row in reader:
-                    for norm_phone, display_name, email, enabled in process_row(row, header):
+                    row_data, anomaly_count = process_row(row, header)
+                    total_anomaly_count += anomaly_count
+                    for norm_phone, display_name, email, enabled in row_data:
                         if norm_phone not in ad_data:
                             ad_data[norm_phone] = []
                         ad_data[norm_phone].append((display_name, email, enabled))
 
-                return ad_data
+                return ad_data, total_anomaly_count
         except UnicodeDecodeError:
             log_verbose(f"Ошибка кодировки {encoding} в {ad_file}, пробую следующую")
             continue
