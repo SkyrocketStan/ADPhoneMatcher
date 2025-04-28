@@ -53,7 +53,6 @@ class TestMain(unittest.TestCase):
         timestamp = "2025-04-26_13-05-56"
         matches = [("123456", "Иванов Иван", "ivanov.ivan@company.com", "True")]
 
-        # Используем правильные пути для моков
         with patch("phone_matcher.main.match_phones", return_value=matches) as mock_match, \
             patch("phone_matcher.main.write_output_file", return_value=1) as mock_write, \
             patch("phone_matcher.main.log_info") as mock_log_info, \
@@ -63,14 +62,9 @@ class TestMain(unittest.TestCase):
 
             write_results(phones, ad_data, timestamp)
 
-            # Проверка вызова match_phones
             mock_match.assert_called_once_with(phones, ad_data)
-
-            # Проверка вызова write_output_file
             expected_output = os.path.join(self.results_dir, f"{timestamp}_output.csv")
             mock_write.assert_called_once_with(matches, expected_output)
-
-            # Проверка логирования
             mock_log_info.assert_any_call("Найдено совпадений с номерами AD: 1")
             mock_log_info.assert_any_call(f"Результат сохранён в {expected_output}")
 

@@ -25,11 +25,11 @@ def manage_log_files(logs_dir: str, log_file: str) -> None:
     os.makedirs(logs_dir, exist_ok=True)
     log_files = sorted(glob.glob(os.path.join(logs_dir, "matcher_*.log")), key=os.path.getmtime)
     if log_file not in log_files:
-        log_files.append(log_file)  # Учитываем новый лог, если он ещё не в списке
+        log_files.append(log_file)
     if len(log_files) >= config.MAX_LOGS:
-        for old_log in log_files[:-config.MAX_LOGS]:  # Оставляем последние MAX_LOGS файлов
+        for old_log in log_files[:-config.MAX_LOGS]:
             try:
-                if old_log != log_file:  # Не удаляем только что созданный лог
+                if old_log != log_file:
                     os.remove(old_log)
             except (OSError, PermissionError) as exc:
                 logging.getLogger().error("Ошибка удаления старого лога %s: %s", old_log, exc)
@@ -45,25 +45,48 @@ def setup_logger(verbose: bool) -> None:
     logger.setLevel(logging.DEBUG)
     logger.handlers = []
 
-    # Настройка файлового обработчика
     os.makedirs(logs_dir, exist_ok=True)
     file_handler = logging.FileHandler(log_file)
     file_handler.setLevel(logging.DEBUG)
-    # noinspection SpellCheckingInspection
     file_formatter = logging.Formatter("[%(asctime)s] %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
     file_handler.setFormatter(file_formatter)
     logger.addHandler(file_handler)
 
-    # Управление количеством логов после создания нового
     manage_log_files(logs_dir, log_file)
 
-    # Настройка консольного обработчика
     console_handler = logging.StreamHandler()
     console_handler.setLevel(logging.DEBUG if verbose else logging.INFO)
-    # noinspection SpellCheckingInspection
     console_formatter = RelativePathFormatter("[%(asctime)s] %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
     console_handler.setFormatter(console_formatter)
     logger.addHandler(console_handler)
+
+
+def setup_anomaly_logger() -> None:
+    """Настраивает логгер для аномалий."""
+    logger = logging.getLogger("anomaly")
+    for handler in logger.handlers[:]:
+        if isinstance(handler, logging.FileHandler):
+            handler.close()
+        logger.removeHandler(handler)
+    logger.handlers = []
+    logger.setLevel(logging.INFO)
+    logger.propagate = False
+
+    logs_dir = os.path.join(config.BASE_DIR, "logs")
+    timestamp = datetime.now().strftime(config.DATE_FORMAT)
+    log_file = os.path.join(logs_dir, f"anomalies_{timestamp}.log")
+    os.makedirs(logs_dir, exist_ok=True)
+
+    file_handler = logging.FileHandler(log_file)
+    file_handler.setLevel(logging.INFO)
+    formatter = logging.Formatter(
+        "[%(asctime)s] Некорректный номер в строке: %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
+    file_handler.setFormatter(formatter)
+    logger.addHandler(file_handler)
+
+    os.chmod(log_file, config.FILE_PERMISSIONS)
 
 
 def ensure_dir(directory: str) -> None:
@@ -84,6 +107,11 @@ def log_error(message: str) -> None:
 def log_verbose(message: str) -> None:
     """Логирует сообщение уровня DEBUG."""
     logging.getLogger().debug(message)
+
+
+def log_anomaly(message: str) -> None:
+    """Логирует аномалию."""
+    logging.getLogger("anomaly").info(message)
 
 
 def find_phone_files(exclude_dirs: List[str], uploads_dir: str) -> List[str]:

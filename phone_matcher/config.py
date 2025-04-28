@@ -22,6 +22,9 @@ OUTPUT_FIELDS = ['Номер', 'ФИО', 'email', 'Активный']  # Име�
 # Символы для нормализации
 NORMALIZE_CHARS = set('+-() " ')  # Удаляемые символы при нормализации
 
+# Длина валидного номера телефона
+VALID_PHONE_NUMBER_LENGTH = 6
+
 # Директории
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 UPLOADS_DIR = os.path.join(BASE_DIR, 'uploads')
