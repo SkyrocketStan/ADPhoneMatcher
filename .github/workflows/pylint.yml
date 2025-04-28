@@ -8,15 +8,15 @@ on:
 
 jobs:
   lint_and_test:
-    runs-on: ubuntu-20.04  # Или ubuntu-18.04, если нужна более старая ОС
+    runs-on: ubuntu-22.04  # Или ubuntu-18.04, если нужна более старая ОС
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python 3.7.3
+      - name: Set up Python 3.7.17
         uses: actions/setup-python@v5
         with:
-          python-version: '3.7.3'  # Точная версия из manifest
+          python-version: '3.7.17'  # Точная версия из manifest
           cache: 'pip'
 
       - name: Install dependencies
@@ -26,7 +26,7 @@ jobs:
 
       - name: Run pylint
         run: |
-          pylint phone_matcher tests --fail-under=8.5 || echo "Pylint завершился с ошибками" && exit 0
+          pylint phone_matcher tests --fail-under=8.5
 
       - name: Run tests
         run: |
