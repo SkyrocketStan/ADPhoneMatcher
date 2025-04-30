@@ -6,7 +6,6 @@ from datetime import datetime
 from typing import List
 from . import config
 
-
 class RelativePathFormatter(logging.Formatter):
     """Форматирует сообщения, заменяя абсолютные пути на относительные для консоли."""
     def format(self, record):
@@ -18,7 +17,6 @@ class RelativePathFormatter(logging.Formatter):
                 message = message.replace(word, f"./{rel_path}")
         record.msg = message
         return super().format(record)
-
 
 def manage_log_files(logs_dir: str, log_file: str) -> None:
     """Удаляет самые старые лог-файлы, чтобы осталось не более config.MAX_LOGS."""
@@ -34,10 +32,9 @@ def manage_log_files(logs_dir: str, log_file: str) -> None:
             except (OSError, PermissionError) as exc:
                 logging.getLogger().error("Ошибка удаления старого лога %s: %s", old_log, exc)
 
-
 def setup_logger(verbose: bool) -> None:
     """Настраивает логгер для вывода в консоль и файл."""
-    logs_dir = os.path.join(config.BASE_DIR, "logs")
+    logs_dir = config.LOGS_DIR
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     log_file = os.path.join(logs_dir, f"matcher_{timestamp}.log")
 
@@ -60,7 +57,6 @@ def setup_logger(verbose: bool) -> None:
     console_handler.setFormatter(console_formatter)
     logger.addHandler(console_handler)
 
-
 def setup_anomaly_logger() -> None:
     """Настраивает логгер для аномалий."""
     logger = logging.getLogger("anomaly")
@@ -72,7 +68,7 @@ def setup_anomaly_logger() -> None:
     logger.setLevel(logging.INFO)
     logger.propagate = False
 
-    logs_dir = os.path.join(config.BASE_DIR, "logs")
+    logs_dir = config.LOGS_DIR
     timestamp = datetime.now().strftime(config.DATE_FORMAT)
     log_file = os.path.join(logs_dir, f"anomalies_{timestamp}.log")
     os.makedirs(logs_dir, exist_ok=True)
@@ -88,31 +84,25 @@ def setup_anomaly_logger() -> None:
 
     os.chmod(log_file, config.FILE_PERMISSIONS)
 
-
 def ensure_dir(directory: str) -> None:
     """Создаёт директорию, если она не существует."""
     os.makedirs(directory, exist_ok=True)
-
 
 def log_info(message: str) -> None:
     """Логирует сообщение уровня INFO."""
     logging.getLogger().info(message)
 
-
 def log_error(message: str) -> None:
     """Логирует сообщение уровня ERROR."""
     logging.getLogger().error(message)
-
 
 def log_verbose(message: str) -> None:
     """Логирует сообщение уровня DEBUG."""
     logging.getLogger().debug(message)
 
-
 def log_anomaly(message: str) -> None:
     """Логирует аномалию."""
     logging.getLogger("anomaly").info(message)
-
 
 def find_phone_files(exclude_dirs: List[str], uploads_dir: str) -> List[str]:
     """Находит файлы .csv и .txt в uploads_dir, исключая exclude_dirs."""
@@ -123,7 +113,6 @@ def find_phone_files(exclude_dirs: List[str], uploads_dir: str) -> List[str]:
             if not any(os.path.abspath(file).startswith(os.path.abspath(d)) for d in exclude_dirs):
                 phone_files.append(os.path.abspath(file))
     return phone_files
-
 
 def move_file_to_archive(file_path: str, archive_dir: str) -> None:
     """Перемещает файл в архив с уникальным именем."""

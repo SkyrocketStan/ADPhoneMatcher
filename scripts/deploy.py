@@ -15,9 +15,12 @@ def deploy_project(input_file: str) -> None:
     current_file = None
     file_content = []
 
-    # Создаём uploads/
-    uploads_dir = current_dir / "uploads"
-    os.makedirs(uploads_dir, exist_ok=True)
+    # Создаём директории
+    os.makedirs(current_dir / "data" / "ad_input", exist_ok=True)
+    os.makedirs(current_dir / "data" / "phone_data", exist_ok=True)
+    os.makedirs(current_dir / "data" / "results", exist_ok=True)
+    os.makedirs(current_dir / "data" / "archive", exist_ok=True)
+    os.makedirs(current_dir / "logs", exist_ok=True)
 
     # Читаем input_file
     with open(input_file, "r", encoding="utf-8") as input_file_handle:

@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 
 # Кодировки
 ENCODINGS = ['utf-8-sig', 'utf-8', 'windows-1251']
@@ -27,13 +28,15 @@ VALID_PHONE_NUMBER_LENGTH = 6
 
 # Директории
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-UPLOADS_DIR = os.path.join(BASE_DIR, 'uploads')
-RESULTS_DIR = os.path.join(BASE_DIR, 'results')
-ARCHIVE_DIR = os.path.join(BASE_DIR, 'archive')
+INPUT_DIR = os.path.join(BASE_DIR, 'data', 'ad_input')
+UPLOADS_DIR = os.path.join(BASE_DIR, 'data', 'phone_data')
+RESULTS_DIR = os.path.join(BASE_DIR, 'data', 'results')
+ARCHIVE_DIR = os.path.join(BASE_DIR, 'data', 'archive')
+LOGS_DIR = os.path.join(BASE_DIR, 'logs')
 EXCLUDE_DIRS = [RESULTS_DIR, ARCHIVE_DIR]  # Исключаемые папки при поиске выгрузок
 
 # Логи
-LOG_FILE = os.path.join(BASE_DIR, 'matcher.log')
+LOG_FILE = os.path.join(LOGS_DIR, f"matcher_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.log")
 LOG_FORMAT = '[%(asctime)s] %(message)s'
 LOG_DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
 MAX_LOGS = 5   # Максимальное количество логов в папке logs

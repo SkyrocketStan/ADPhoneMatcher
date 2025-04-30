@@ -10,6 +10,9 @@ fi
 BASE_DIR=$(pwd)
 IMAGE_NAME="adphonematcher:test"
 
+# Создание директорий
+mkdir -p "${BASE_DIR}/data/ad_input" "${BASE_DIR}/data/phone_data" "${BASE_DIR}/data/results" "${BASE_DIR}/data/archive" "${BASE_DIR}/logs"
+
 # Проверка наличия образа
 if ! podman image exists "${IMAGE_NAME}"; then
     echo "Сборка образа ${IMAGE_NAME}..."

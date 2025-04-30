@@ -25,7 +25,7 @@
 4. **Протестируйте**:
 
    ```bash
-   python3 -m phone_matcher.main input.csv -v
+   python3 -m phone_matcher.main data/ad_input/ad_input.csv -v
    ```
 
 5. **Коммит**:
