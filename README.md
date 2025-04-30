@@ -1,6 +1,8 @@
 # ADPhoneMatcher
 
-![Pylint Check](https://github.com/SkyrocketStan/ADPhoneMatcher/actions/workflows/pylint.yml/badge.svg)
+[![GitHub release](https://img.shields.io/github/v/release/SkyrocketStan/ADPhoneMatcher?style=flat-square&logo=github)](https://github.com/SkyrocketStan/ADPhoneMatcher/releases)
+[![Pylint](https://img.shields.io/github/actions/workflow/status/SkyrocketStan/ADPhoneMatcher/pylint.yml?label=Pylint&style=flat-square&logo=pylint)](https://github.com/SkyrocketStan/ADPhoneMatcher/actions/workflows/pylint.yml)
+[![License](https://img.shields.io/github/license/SkyrocketStan/ADPhoneMatcher?style=flat-square)](https://github.com/SkyrocketStan/ADPhoneMatcher/blob/main/LICENSE)
 
 ADPhoneMatcher — это Python-приложение для сопоставления телефонных номеров из CSV-выгрузки Active Directory (AD) с данными из других источников (`.csv` или `.txt`). Проект работает на чистом Python без сторонних библиотек, обрабатывает входные файлы, нормализует номера, создаёт выходные CSV с результатами, архивирует обработанные файлы и ведёт логирование.
 
