@@ -9,7 +9,6 @@ from phone_matcher.parse_ad import parse_ad_file, validate_header, process_row
 from phone_matcher import config
 from phone_matcher.utils import setup_anomaly_logger
 
-
 class TestParseAd(unittest.TestCase):
     """Тесты для модуля parse_ad."""
     def setUp(self):
@@ -65,8 +64,8 @@ class TestParseAd(unittest.TestCase):
             mock_log_anomaly.assert_not_called()
 
     def test_parse_ad_file(self):
-        """Проверяет парсинг AD-файла."""
-        with patch("phone_matcher.config.BASE_DIR", self.temp_dir.name):
+        """Проверяет парсинг AD-файла и создание лога аномалий."""
+        with patch("phone_matcher.config.LOGS_DIR", self.logs_dir):
             setup_anomaly_logger()
             ad_data, anomaly_count = parse_ad_file(self.test_ad_file)
             self.assertIn("123456", ad_data)

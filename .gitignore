@@ -13,12 +13,8 @@ dist/
 *.swp
 *~
 
-results/
-archive/
-phones/
+data/
 logs/
-output/
-input/
 
 *.csv
 *.txt
@@ -31,7 +27,5 @@ input/
 
 .DS_Store
 *.zip
-uploads/
 .venv/
 .pytest_cache/
-
